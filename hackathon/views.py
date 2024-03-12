@@ -9,7 +9,7 @@ from django.shortcuts import get_object_or_404
 from django.utils import timezone
 from django.views.decorators.csrf import csrf_exempt
 
-@csrf_exempt
+
 class TeamRegistrationView(generics.CreateAPIView):
     queryset = Team.objects.all()
     serializer_class = TeamSerializer
@@ -28,7 +28,7 @@ class TeamRegistrationView(generics.CreateAPIView):
         # Return the access key in the response
         return Response({'access_key': str(access_key)})
 
-@csrf_exempt
+
 class TeamInfoView(generics.RetrieveAPIView):
     serializer_class = TeamSerializer
 
@@ -46,7 +46,6 @@ class TeamInfoView(generics.RetrieveAPIView):
             return Response({'error': 'Team not found.'}, status=404)
 
 
-@csrf_exempt
 class ApiCodeView(generics.CreateAPIView):
     serializer_class = ApiHitCountSerializer
 
