@@ -8,3 +8,8 @@ class TeamAdmin(admin.ModelAdmin):
 @admin.register(ApiHitCount)
 class ApiHitCountAdmin(admin.ModelAdmin):
     list_display = ('team', 'api_code', 'time_refreshed', 'api_hits', 'timestamp')
+
+    def team_name(self, obj):
+        return obj.team.team_name
+
+    team_name.admin_order_field = 'team__team_name'
