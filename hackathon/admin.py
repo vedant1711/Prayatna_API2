@@ -7,7 +7,7 @@ class TeamAdmin(admin.ModelAdmin):
 
 @admin.register(ApiHitCount)
 class ApiHitCountAdmin(admin.ModelAdmin):
-    list_display = ('team', 'api_code', 'time_refreshed', 'api_hits', 'timestamp')
+    list_display = ('team_name', 'api_code', 'time_refreshed', 'api_hits', 'timestamp')
 
     def team_name(self, obj):
         return obj.team.team_name
