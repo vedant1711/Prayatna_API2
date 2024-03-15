@@ -2,8 +2,8 @@
 
 from rest_framework import generics
 from rest_framework.response import Response
-from .models import Team, ApiHitCount
-from .serializers import TeamSerializer, ApiHitCountSerializer
+from .models import Team
+from .serializers import TeamSerializer
 import uuid
 from django.shortcuts import get_object_or_404
 from django.utils import timezone
@@ -21,12 +21,15 @@ class TeamRegistrationView(generics.CreateAPIView):
         
         # Generate a UUID for the access key
         access_key = uuid.uuid4()
+        api_code = uuid.uuid4()
+        time_refreshed = timezone.now()
+
 
         # Save the Team instance with the generated access key
-        serializer.save(team_name=team_name, team_members=team_members, access_key=access_key)
+        serializer.save(team_name=team_name, team_members=team_members, access_key=access_key, api_code=api_code, time_refreshed=time_refreshed)
 
         # Return the access key in the response
-        return Response({'access_key': str(access_key)})
+        return Response({'access_key': str(access_key), 'api_code': str(api_code)})
 
 
 class TeamInfoView(generics.RetrieveAPIView):
@@ -46,27 +49,27 @@ class TeamInfoView(generics.RetrieveAPIView):
             return Response({'error': 'Team not found.'}, status=404)
 
 
-class ApiCodeView(generics.CreateAPIView):
-    serializer_class = ApiHitCountSerializer
+# class ApiCodeView(generics.CreateAPIView):
+#     serializer_class = ApiHitCountSerializer
 
-    def create(self, request, *args, **kwargs):
-        access_key = self.request.headers.get('Authorization', '').replace('Bearer ', '')
+#     def create(self, request, *args, **kwargs):
+#         access_key = self.request.headers.get('Authorization', '').replace('Bearer ', '')
 
-        if not access_key:
-            return Response({'error': 'Access key is required in the Authorization header.'}, status=400)
+#         if not access_key:
+#             return Response({'error': 'Access key is required in the Authorization header.'}, status=400)
 
-        team = get_object_or_404(Team, access_key=access_key)
-        api_hit_count, created = ApiHitCount.objects.get_or_create(team=team)
+#         team = get_object_or_404(Team, access_key=access_key)
+#         api_hit_count, created = ApiHitCount.objects.get_or_create(team=team)
 
-        # Check if the ApiHitCount was just created or if it needs to be refreshed
-        if created or (timezone.now() - api_hit_count.time_refreshed).total_seconds() >= 1800:
-            api_hit_count.api_code = uuid.uuid4()
-            api_hit_count.time_refreshed = timezone.now()
-            api_hit_count.save()
+#         # Check if the ApiHitCount was just created or if it needs to be refreshed
+#         if created or (timezone.now() - api_hit_count.time_refreshed).total_seconds() >= 1800:
+#             api_hit_count.api_code = uuid.uuid4()
+#             api_hit_count.time_refreshed = timezone.now()
+#             api_hit_count.save()
 
-        # Increment the api_hits count
-        api_hit_count.api_hits += 1
-        api_hit_count.save()
+#         # Increment the api_hits count
+#         api_hit_count.api_hits += 1
+#         api_hit_count.save()
 
-        serializer = self.get_serializer(api_hit_count)
-        return Response(serializer.data)
+#         serializer = self.get_serializer(api_hit_count)
+#         return Response(serializer.data)
